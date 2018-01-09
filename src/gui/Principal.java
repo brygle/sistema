@@ -36,6 +36,7 @@ public class Principal extends javax.swing.JFrame {
         contenedorModulos = new javax.swing.JDesktopPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("FARMACIA EL GRAN DESCUENTO");
 
         grupoModulos.add(btnInventarios);
         btnInventarios.setText("Inventarios");

@@ -135,16 +135,25 @@
   </Layout>
   <SubComponents>
     <Component class="javax.swing.JButton" name="btnNuevoArticulo">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Registrar Nuevo Articulo"/>
+      </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnNuevoArticuloActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnCategoria">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Nueva Categor&#xed;a"/>
+      </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCategoriaActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnProveedor">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Nuevo Proveedor"/>
+      </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnProveedorActionPerformed"/>
       </Events>

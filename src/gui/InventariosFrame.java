@@ -53,18 +53,21 @@ public class InventariosFrame extends javax.swing.JInternalFrame {
 
         setTitle("Inventarios");
 
+        btnNuevoArticulo.setToolTipText("Registrar Nuevo Articulo");
         btnNuevoArticulo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnNuevoArticuloActionPerformed(evt);
             }
         });
 
+        btnCategoria.setToolTipText("Nueva Categoría");
         btnCategoria.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCategoriaActionPerformed(evt);
             }
         });
 
+        btnProveedor.setToolTipText("Nuevo Proveedor");
         btnProveedor.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnProveedorActionPerformed(evt);
