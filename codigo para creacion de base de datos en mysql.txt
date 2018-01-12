@@ -1,0 +1,48 @@
+create database SISTEMA_FARMACIA;
+USE SISTEMA_FARMACIA;
+CREATE TABLE CAT_CATEGORIAS(
+	id_categoria_prod int AUTO_INCREMENT PRIMARY KEY,
+	nom_categoria_prod varchar(25) UNIQUE,
+	desc_categoria_prod varchar(50)
+);
+
+CREATE TABLE CAT_PRODUCTOS(
+	id_prod varchar(25) PRIMARY KEY,
+	nombre_prod varchar(25) NOT NULL,
+	desc_prod varchar(50),
+	stock_prod double(8,2),
+	foto_prod blob,
+	unidad_prod varchar(15),
+	precio_compra_prod double(8,2),
+	precio_venta_prod double(8,2),
+	existencias_prod double(6,2),
+	id_categoria_prod int NOT NULL,
+	id_proveedor int NOT NULL
+);
+
+CREATE TABLE CAT_PROVEEDORES(
+	id_proveedor int AUTO_INCREMENT PRIMARY KEY,
+	nom_proveedor varchar(25),
+	dir_proveedor varchar(50),
+	telefono_proveedor varchar(15),
+	email_proveedor varchar(20),
+	contacto_proveedor varchar(30)
+);
+
+CREATE TABLE VENTAS(
+	id_venta int AUTO_INCREMENT PRIMARY KEY,
+	monto_venta double(8,2),
+	fecha_venta date
+);
+
+CREATE TABLE DETALLE_VENTA(
+	id_detalle_venta int AUTO_INCREMENT PRIMARY KEY,
+	id_venta int NOT NULL,
+	id_prod varchar(25) NOT NULL,
+	cantidad_vendida double(8,2) NOT NULL
+);
+
+ALTER TABLE CAT_PRODUCTOS ADD CONSTRAINT id_categoria_prod_fk FOREIGN KEY (id_categoria_prod) REFERENCES CAT_CATEGORIAS(id_categoria_prod);
+ALTER TABLE CAT_PRODUCTOS ADD CONSTRAINT id_proveedor_fk FOREIGN KEY (id_proveedor) REFERENCES CAT_PROVEEDORES(id_proveedor);
+ALTER TABLE DETALLE_VENTA ADD CONSTRAINT id_venta_fk FOREIGN KEY (id_venta) REFERENCES VENTAS (id_venta);
+ALTER TABLE DETALLE_VENTA ADD CONSTRAINT id_prod_fk FOREIGN KEY (id_prod) REFERENCES CAT_PRODUCTOS (id_prod);
