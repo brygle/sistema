@@ -5,6 +5,7 @@
  */
 package datos;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.Connection;
@@ -41,7 +42,8 @@ public class BaseDatos {
     public void insertarProducto(Producto producto){
         try {
             conn = DriverManager.getConnection("jdbc:mysql://localhost/sistema_farmacia","root","");
-            FileInputStream fis = new FileInputStream(producto.getFotoProducto());
+            File fileFoto = producto.getFotoProducto();
+            FileInputStream fis = new FileInputStream(fileFoto);
             
             String sql = "INSERT INTO cat_productos (id_prod, nombre_prod, desc_prod, stock_prod, foto_prod, unidad_prod,"
                     + "precio_compra_prod, precio_venta_prod, existencias_prod, id_categoria_prod, id_proveedor) "
@@ -53,7 +55,9 @@ public class BaseDatos {
             st.setString(2, producto.getNomProducto());
             st.setString(3, producto.getDescProducto());
             st.setDouble(4, producto.getStockProducto());
-            st.setBinaryStream(5, fis , (int)producto.getFotoProducto().length());
+            long tamanoFoto = producto.getFotoProducto().length();
+            st.setBinaryStream(5, fis , tamanoFoto); 
+            //st.setBinaryStream(5,null,0);
             st.setString(6, producto.getUnidadProducto());
             st.setDouble(7, producto.getPrecioCompraProducto());
             st.setDouble(8, producto.getPrecioVentaProdcuto());
@@ -111,7 +115,7 @@ public class BaseDatos {
     try {
             conn = DriverManager.getConnection("jdbc:mysql://localhost/sistema_farmacia","root","");
             
-            String sql = "INSERT INTO cat_productos (nom_proveedor, dir_proveedor, telefono_proveedor, email_proveedor, contacto_proveedor) "
+            String sql = "INSERT INTO cat_proveedores (nom_proveedor, dir_proveedor, telefono_proveedor, email_proveedor, contacto_proveedor) "
                     + "values (?,?,?,?,?)";
             
             st = conn.prepareStatement(sql);

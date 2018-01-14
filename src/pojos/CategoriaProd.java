@@ -16,6 +16,7 @@ public class CategoriaProd {
     private String descCategoriaProd;
 
     public CategoriaProd(int idCategoria, String nomCategoriaProd, String descCategoriaProd) {
+        this.idCategoria = idCategoria; 
         this.nomCategoriaProd = nomCategoriaProd;
         this.descCategoriaProd = descCategoriaProd;
     }
