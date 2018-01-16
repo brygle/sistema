@@ -19,7 +19,6 @@ import pojos.CategoriaProd;
 import pojos.Producto;
 import pojos.Proveedor;
 
-
 /**
  *
  * @author Bryan
@@ -29,12 +28,13 @@ public class ProductoFrame extends javax.swing.JDialog {
     /**
      * Creates new form ProductoFrame
      */
-    
-    DefaultComboBoxModel <CategoriaProd> modeloCategorias;
-    DefaultComboBoxModel <Proveedor> modeloProveedor;
+    DefaultComboBoxModel<CategoriaProd> modeloCategorias;
+    DefaultComboBoxModel<Proveedor> modeloProveedor;
     BaseDatos base;
-    
-    public ProductoFrame(java.awt.Frame parent, boolean modal) {
+    boolean estaActualizando;
+    String informacion = "";
+
+    public ProductoFrame(java.awt.Frame parent, boolean modal, Producto producto, ImageIcon icon, String titulo, boolean actualizando) {
         super(parent, modal);
         modeloCategorias = new DefaultComboBoxModel<CategoriaProd>();
         modeloProveedor = new DefaultComboBoxModel<Proveedor>();
@@ -42,26 +42,53 @@ public class ProductoFrame extends javax.swing.JDialog {
         cargarModeloCat();
         cargarModeloProv();
         initComponents();
+        this.estaActualizando = actualizando;
+        this.setTitle(titulo);
+        if (producto != null) {
+            cargarProducto(producto, icon);
+        }
+
     }
-    
-    private void cargarModeloCat(){
+
+    private void cargarProducto(Producto producto, ImageIcon icono) {
+        lblImagenArticulo.setIcon(icono);
+        String clave = producto.getIdProducto();
+        String nombre = producto.getNomProducto();
+        String descripcion = producto.getDescProducto();
+        double stockRequerido = producto.getStockProducto();
+        String unidad = producto.getUnidadProducto();
+        double precioCompra = producto.getPrecioCompraProducto();
+        double precioVenta = producto.getPrecioVentaProdcuto();
+
+        campoClave.setText(clave);
+        campoNombre.setText(nombre);
+        campoDesc.setText(descripcion);
+        campoStock.setText(stockRequerido + "");
+        comboUnidades.setSelectedItem(unidad);
+        campoPrecioCompra.setText(precioCompra+"");
+        campoPrecioVenta.setText(precioVenta+"");
+
+        campoClave.setEnabled(false);
+    }
+
+    private void cargarModeloCat() {
         ArrayList<CategoriaProd> listaCategorias;
         listaCategorias = base.obtenerCategorias();
-        
-        for(CategoriaProd categoria : listaCategorias){
+
+        for (CategoriaProd categoria : listaCategorias) {
             modeloCategorias.addElement(categoria);
         }
-        
+
     }
-    
-    private void cargarModeloProv(){
+
+    private void cargarModeloProv() {
         ArrayList<Proveedor> listaProveedores;
         listaProveedores = base.obtenerProveedores();
-        
-        for(Proveedor proveedor : listaProveedores){
+
+        for (Proveedor proveedor : listaProveedores) {
             modeloProveedor.addElement(proveedor);
         }
-    
+
     }
 
     /**
@@ -124,7 +151,7 @@ public class ProductoFrame extends javax.swing.JDialog {
 
         jLabel5.setText("Unidad de medida:");
 
-        comboUnidades.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pastilla", "Par de pastillas", "1/2 Blister", "Blister", "1/2 Caja", "Caja", "Frasco", "Unidad" }));
+        comboUnidades.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pastilla", "Par de pastillas", "1/2 Blister", "Blister", "1/2 Caja", "Caja", "Frasco", "Unidad", "Tubo", "Gotero" }));
 
         jLabel6.setText("Precio de Compra:");
 
@@ -266,56 +293,85 @@ public class ProductoFrame extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
+
     File imgArticleFile;
     private void lblImagenArticuloMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblImagenArticuloMousePressed
         JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos de imagen jpg, gif o png" , "jpg", "gif", "png");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos de imagen jpg", "jpg");
         chooser.setFileFilter(filter);
-        
+
         int returnVal = chooser.showOpenDialog(this);
-        if(returnVal == JFileChooser.APPROVE_OPTION){
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
             int anchoImagen = lblImagenArticulo.getWidth();
             int altoImagen = lblImagenArticulo.getHeight();
-            
+
             imgArticleFile = chooser.getSelectedFile();
             ImageIcon icono = new ImageIcon(imgArticleFile.getAbsolutePath());
             Image imagen = icono.getImage();
             imagen.getScaledInstance(anchoImagen, altoImagen, Image.SCALE_DEFAULT);
-            
+
             ImageIcon iconoRedimensionado = new ImageIcon(imagen);
             lblImagenArticulo.setIcon(iconoRedimensionado);
         }
-        
-        
+
+
     }//GEN-LAST:event_lblImagenArticuloMousePressed
 
     private void btnGuardarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarProductoActionPerformed
-         String codigo = campoClave.getText();
-         String nombre = campoNombre.getText();
-         String descripcion = campoDesc.getText();
-         double stock = Double.parseDouble(campoStock.getText());
-         double precioCompra = Double.parseDouble(campoPrecioCompra.getText());
-         double precioVenta = Double.parseDouble(campoPrecioVenta.getText());
-         String unidad = comboUnidades.getSelectedItem().toString();
-         CategoriaProd categoria =  (CategoriaProd)comboCategorias.getSelectedItem();
-         Proveedor proveedor = (Proveedor)comboProveedores.getSelectedItem();
-         
-         if(imgArticleFile == null){
-             
-             JOptionPane.showMessageDialog(this, "No ha ingresado una imagen");
-         }
-         else{
-             
-             Producto producto = new Producto(codigo, nombre, descripcion, stock, imgArticleFile, unidad, precioCompra, precioVenta, 0.0, categoria.getIdCategoria(), proveedor.getIdProveedor());
-         
-             base.insertarProducto(producto);
-             this.dispose();
-         }
-         
-         
+        String codigo = campoClave.getText();
+        String nombre = campoNombre.getText();
+        String descripcion = campoDesc.getText();
+        double stock = Double.parseDouble(campoStock.getText());
+        double precioCompra = Double.parseDouble(campoPrecioCompra.getText());
+        double precioVenta = Double.parseDouble(campoPrecioVenta.getText());
+        String unidad = comboUnidades.getSelectedItem().toString();
+        CategoriaProd categoria = (CategoriaProd) comboCategorias.getSelectedItem();
+        Proveedor proveedor = (Proveedor) comboProveedores.getSelectedItem();
+        
+
+        if (estaActualizando) {
+            if (imgArticleFile == null) {
+                Producto producto = new Producto(codigo, nombre, descripcion, stock, null, unidad, precioCompra, precioVenta, 0.0, categoria.getIdCategoria(), proveedor.getIdProveedor());
+                base.actualizarProducto(producto, false);
+            } else {
+                Producto producto = new Producto(codigo, nombre, descripcion, stock, imgArticleFile, unidad, precioCompra, precioVenta, 0.0, categoria.getIdCategoria(), proveedor.getIdProveedor());
+                base.actualizarProducto(producto, true);
+            }
+
+            JOptionPane.showMessageDialog(this, "Se ha guardado el producto");
+            this.dispose();
+            informacion = "1";
+
+            if (imgArticleFile == null) { 
+                
+            } else {
+
+                Producto producto = new Producto(codigo, nombre, descripcion, stock, imgArticleFile, unidad, precioCompra, precioVenta, 0.0, categoria.getIdCategoria(), proveedor.getIdProveedor());
+
+                base.insertarProducto(producto);
+                JOptionPane.showMessageDialog(this, "Se ha guardado el producto");
+                this.dispose();
+            }
+
+        } else {
+            if(imgArticleFile == null){
+                JOptionPane.showMessageDialog(this, "No ha ingresado una imagen");
+            }else{
+                Producto producto = new Producto(codigo, nombre, descripcion, stock, imgArticleFile, unidad, precioCompra, precioVenta, 0.0, categoria.getIdCategoria(), proveedor.getIdProveedor());
+
+                base.insertarProducto(producto);
+                JOptionPane.showMessageDialog(this, "Se ha guardado el producto");
+                this.dispose(); 
+                
+            }
+            
+        }
     }//GEN-LAST:event_btnGuardarProductoActionPerformed
 
+    public String getInformacion(){
+        return this.informacion;
+    }
+    
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         this.dispose();
     }//GEN-LAST:event_btnCancelarActionPerformed
@@ -324,7 +380,7 @@ public class ProductoFrame extends javax.swing.JDialog {
         CategoriaFrame categoria = new CategoriaFrame(null, true);
         categoria.setVisible(true);
         categoria.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        categoria.setLocation(600,150);
+        categoria.setLocation(600, 150);
         categoria.setAlwaysOnTop(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -359,7 +415,7 @@ public class ProductoFrame extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ProductoFrame dialog = new ProductoFrame(new javax.swing.JFrame(), true);
+                ProductoFrame dialog = new ProductoFrame(new javax.swing.JFrame(), true, null, null, "Titulo", false);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

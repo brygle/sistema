@@ -128,6 +128,10 @@ public class Producto {
         this.idProveedor = idProveedor;
     }
     
+    @Override
+    public String toString(){
+        return this.nomProducto;
+    } 
     
     
 }

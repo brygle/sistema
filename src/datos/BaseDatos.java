@@ -8,11 +8,13 @@ package datos;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,7 +30,8 @@ import pojos.Venta;
  */
 public class BaseDatos {
     Connection conn = null;
-    PreparedStatement st = null;
+    PreparedStatement prepSt = null;
+    Statement st = null;
     ResultSet rs = null;
     
     public BaseDatos(){
@@ -49,23 +52,23 @@ public class BaseDatos {
                     + "precio_compra_prod, precio_venta_prod, existencias_prod, id_categoria_prod, id_proveedor) "
                     + "values(?,?,?,?,?,?,?,?,?,?,?)";
             
-            st = conn.prepareStatement(sql);
+            prepSt = conn.prepareStatement(sql);
             
-            st.setString(1, producto.getIdProducto());
-            st.setString(2, producto.getNomProducto());
-            st.setString(3, producto.getDescProducto());
-            st.setDouble(4, producto.getStockProducto());
+            prepSt.setString(1, producto.getIdProducto());
+            prepSt.setString(2, producto.getNomProducto());
+            prepSt.setString(3, producto.getDescProducto());
+            prepSt.setDouble(4, producto.getStockProducto());
             long tamanoFoto = producto.getFotoProducto().length();
-            st.setBinaryStream(5, fis , tamanoFoto); 
+            prepSt.setBinaryStream(5, fis , tamanoFoto); 
             //st.setBinaryStream(5,null,0);
-            st.setString(6, producto.getUnidadProducto());
-            st.setDouble(7, producto.getPrecioCompraProducto());
-            st.setDouble(8, producto.getPrecioVentaProdcuto());
-            st.setDouble(9, producto.getExistenciasProducto());
-            st.setInt(10, producto.getIdCategoria());
-            st.setInt(11, producto.getIdProveedor());
+            prepSt.setString(6, producto.getUnidadProducto());
+            prepSt.setDouble(7, producto.getPrecioCompraProducto());
+            prepSt.setDouble(8, producto.getPrecioVentaProdcuto());
+            prepSt.setDouble(9, producto.getExistenciasProducto());
+            prepSt.setInt(10, producto.getIdCategoria());
+            prepSt.setInt(11, producto.getIdProveedor());
             
-            st.executeUpdate();
+            prepSt.executeUpdate();
             
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -74,12 +77,164 @@ public class BaseDatos {
         }
         finally{
             try {
-                st.close();
+                prepSt.close();
                 conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
         }
+    }
+    
+    public void borrarProducto(Producto producto){
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/sistema_farmacia","root","");
+            
+            
+            String sql = "DELETE FROM cat_productos WHERE id_prod = ?";
+            
+            prepSt = conn.prepareStatement(sql);
+            
+            prepSt.setString(1, producto.getIdProducto());
+            
+            
+            prepSt.executeUpdate();
+            
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        } 
+        finally{
+            try {
+                prepSt.close();
+                conn.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    
+    
+    }
+    
+    public InputStream buscarFoto(Producto producto){
+        InputStream streamFoto = null;
+        
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/sistema_farmacia","root","");
+            
+            
+            String sql = "Select foto_prod from cat_productos where id_prod = ?";
+            
+            prepSt = conn.prepareStatement(sql);
+            prepSt.setString(1, producto.getIdProducto());
+            rs = prepSt.executeQuery();
+            
+            while(rs.next()){
+                streamFoto = rs.getBinaryStream("foto_prod");
+            }
+            
+           
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        } 
+        finally{
+            try {
+                prepSt.close();
+                conn.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return streamFoto;
+        
+    }
+    
+    public void actualizarProducto(Producto producto, boolean cambiarFoto){
+        
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/sistema_farmacia","root","");
+            if(cambiarFoto==true){
+                File fileFoto = producto.getFotoProducto();
+                FileInputStream fis = new FileInputStream(fileFoto);
+                
+                String sql = "UPDATE cat_productos SET desc_prod = ? , stock_prod = ? , foto_prod = ? , unidad_prod = ?, "
+                        + "precio_compra_prod = ? , precio_venta_prod = ?, id_categoria_prod = ?, id_proveedor =? "
+                        + "WHERE id_prod = ?";
+                
+                prepSt = conn.prepareStatement(sql);
+                prepSt.setString(1, producto.getDescProducto());
+                prepSt.setDouble(2, producto.getStockProducto());
+                long tamanoFoto = producto.getFotoProducto().length();
+                prepSt.setBinaryStream(3, fis , tamanoFoto);
+                prepSt.setString(4, producto.getUnidadProducto());
+                prepSt.setDouble(5, producto.getPrecioCompraProducto());
+                prepSt.setDouble(6, producto.getPrecioVentaProdcuto());
+                prepSt.setDouble(7, producto.getExistenciasProducto());
+                prepSt.setInt(8, producto.getIdCategoria());
+                prepSt.setInt(9, producto.getIdProveedor());
+                
+            }else{
+                String sql = "UPDATE cat_productos SET nombre_prod = ? , desc_prod = ? , stock_prod = ? , unidad_prod = ?, "
+                        + "precio_compra_prod = ? , precio_venta_prod = ?,id_categoria_prod = ?, id_proveedor =? "
+                        + "WHERE id_prod = ?";
+                
+                prepSt = conn.prepareStatement(sql);
+                
+                prepSt.setString(1, producto.getNomProducto());
+                prepSt.setString(2, producto.getDescProducto());
+                prepSt.setDouble(3, producto.getStockProducto());
+                prepSt.setString(4, producto.getUnidadProducto());
+                prepSt.setDouble(5, producto.getPrecioCompraProducto());
+                prepSt.setDouble(6, producto.getPrecioVentaProdcuto());
+                prepSt.setInt(7, producto.getIdCategoria());
+                prepSt.setInt(8, producto.getIdProveedor());
+                prepSt.setString(9, producto.getIdProducto());
+                
+            }
+            prepSt.executeUpdate(); 
+            
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(BaseDatos.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        finally{
+            try {
+                prepSt.close();
+                conn.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    
+    }
+    
+    public void actualizarInventario(Producto producto, double cantidad){
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/sistema_farmacia","root","");
+            
+            String sql = "UPDATE cat_productos SET existencias_prod = ? WHERE id_prod = ?";
+            
+            prepSt = conn.prepareStatement(sql);
+            
+            prepSt.setDouble(1, cantidad);
+            prepSt.setString(2, producto.getIdProducto());
+            
+            prepSt.executeUpdate();
+            
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        
+        finally{
+            try {
+                prepSt.close();
+                conn.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    
+    
+    
     }
     
     public void insertarCategoriaProducto(CategoriaProd categoria){
@@ -89,12 +244,12 @@ public class BaseDatos {
             
             String sql = "INSERT INTO cat_categorias (nom_categoria_prod, desc_categoria_prod) values(?,?)";
             
-            st = conn.prepareStatement(sql);
+            prepSt = conn.prepareStatement(sql);
             
-            st.setString(1, categoria.getNomCategoriaProd());
-            st.setString(2, categoria.getDescCategoriaProd());
+            prepSt.setString(1, categoria.getNomCategoriaProd());
+            prepSt.setString(2, categoria.getDescCategoriaProd());
             
-            st.executeUpdate();
+            prepSt.executeUpdate();
             
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -102,7 +257,7 @@ public class BaseDatos {
         
         finally{
             try {
-                st.close();
+                prepSt.close();
                 conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -118,23 +273,23 @@ public class BaseDatos {
             String sql = "INSERT INTO cat_proveedores (nom_proveedor, dir_proveedor, telefono_proveedor, email_proveedor, contacto_proveedor) "
                     + "values (?,?,?,?,?)";
             
-            st = conn.prepareStatement(sql);
+            prepSt = conn.prepareStatement(sql);
             
-            st.setString(1, prov.getNomProveedor());
-            st.setString(2, prov.getDirProveedor());
-            st.setString(3, prov.getTelProveedor());
-            st.setString(4, prov.getEmailProveedor());
-            st.setString(5, prov.getContactoProveedor());
+            prepSt.setString(1, prov.getNomProveedor());
+            prepSt.setString(2, prov.getDirProveedor());
+            prepSt.setString(3, prov.getTelProveedor());
+            prepSt.setString(4, prov.getEmailProveedor());
+            prepSt.setString(5, prov.getContactoProveedor());
             
             
-            st.executeUpdate();
+            prepSt.executeUpdate();
             
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
         finally{
             try {
-                st.close();
+                prepSt.close();
                 conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -149,19 +304,19 @@ public class BaseDatos {
             
             String sql = "INSERT INTO ventas (monto_venta, fecha_venta) values (?,?)";
             
-            st = conn.prepareStatement(sql);
+            prepSt = conn.prepareStatement(sql);
             
-            st.setDouble(1, venta.getMontoVenta());
-            st.setDate(2, venta.getFechaVenta());
+            prepSt.setDouble(1, venta.getMontoVenta());
+            prepSt.setDate(2, venta.getFechaVenta());
             
-            st.executeUpdate();
+            prepSt.executeUpdate();
             
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
         finally{
             try {
-                st.close();
+                prepSt.close();
                 conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -176,20 +331,20 @@ public class BaseDatos {
             
             String sql = "INSERT INTO detalle_venta (id_venta, id_producto, cantidad_vendida) values (?,?,?)";
             
-            st = conn.prepareStatement(sql);
+            prepSt = conn.prepareStatement(sql);
             
-            st.setInt(1, detalle.getIdVenta());
-            st.setInt(2, detalle.getIdProd());
-            st.setDouble(3, detalle.getCantidadVendida());
+            prepSt.setInt(1, detalle.getIdVenta());
+            prepSt.setInt(2, detalle.getIdProd());
+            prepSt.setDouble(3, detalle.getCantidadVendida());
             
-            st.executeUpdate();
+            prepSt.executeUpdate();
             
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
         finally{
             try {
-                st.close();
+                prepSt.close();
                 conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -203,10 +358,10 @@ public class BaseDatos {
         try {
             conn = DriverManager.getConnection("jdbc:mysql://localhost/sistema_farmacia","root","");
             
-            String sql = "SELECT * FROM cat_productos";
+            String sql = "SELECT * FROM cat_productos ORDER BY nombre_prod ";
             
-            st = conn.prepareStatement(sql);
-            rs = st.executeQuery();
+            prepSt = conn.prepareStatement(sql);
+            rs = prepSt.executeQuery();
             
             while(rs.next()){
                 String id = rs.getString("id_prod");
@@ -231,7 +386,7 @@ public class BaseDatos {
         }
         finally{
             try {
-                st.close();
+                prepSt.close();
                 conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -240,6 +395,56 @@ public class BaseDatos {
         return listaProductos;
     }
     
+    public ArrayList<Producto> obtenerProductosPorCriterio(String criterio){
+        ArrayList<Producto> listaProductos = new ArrayList<Producto>();
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/sistema_farmacia","root","");
+            
+            String sql = "SELECT * FROM cat_productos  WHERE id_prod LIKE '" + criterio + "%' "
+                    + "OR nombre_prod LIKE '%" + criterio + "%' ORDER BY nombre_prod ";
+            
+            st = conn.createStatement();
+            rs = st.executeQuery(sql);
+            
+            while(rs.next()){
+                String id = rs.getString("id_prod");
+                String nombre = rs.getString("nombre_prod");
+                String descripcion = rs.getString("desc_prod");
+                double stock = rs.getDouble("stock_prod");
+                String unidad = rs.getString("unidad_prod");
+                double precioCompra = rs.getDouble("precio_compra_prod");
+                double precioVenta = rs.getDouble("precio_venta_prod");
+                double existencias = rs.getDouble("existencias_prod");
+                int idCategoria = rs.getInt("id_categoria_prod");
+                int idProveedor = rs.getInt("id_proveedor");
+                
+                
+                
+                Producto producto = new Producto(id, nombre, descripcion, stock, null, unidad, precioCompra, precioVenta, existencias, idCategoria, idProveedor); 
+                
+                listaProductos.add(producto);
+            }
+            
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        finally{
+            try {
+                
+                prepSt.close();
+                conn.close();
+                
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            } finally {
+                return listaProductos;
+            }
+        }
+        
+    }
+    
+    
+    
     public ArrayList<CategoriaProd> obtenerCategorias(){
         ArrayList<CategoriaProd> listaCategorias = new ArrayList<CategoriaProd>();
         try {
@@ -247,8 +452,8 @@ public class BaseDatos {
             
             String sql = "SELECT * FROM cat_categorias";
             
-            st = conn.prepareStatement(sql);
-            rs = st.executeQuery();
+            prepSt = conn.prepareStatement(sql);
+            rs = prepSt.executeQuery();
             
             while(rs.next()){
                 int id = rs.getInt("id_categoria_prod");
@@ -264,7 +469,7 @@ public class BaseDatos {
         }
         finally{
             try {
-                st.close();
+                prepSt.close();
                 conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -281,8 +486,8 @@ public class BaseDatos {
             
             String sql = "SELECT * FROM cat_proveedores";
             
-            st = conn.prepareStatement(sql);
-            rs = st.executeQuery();
+            prepSt = conn.prepareStatement(sql);
+            rs = prepSt.executeQuery();
             
             while(rs.next()){
                 int id = rs.getInt("id_proveedor");
@@ -301,7 +506,7 @@ public class BaseDatos {
         }
         finally{
             try {
-                st.close();
+                prepSt.close();
                 conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
