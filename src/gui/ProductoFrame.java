@@ -7,8 +7,11 @@ package gui;
 
 import datos.BaseDatos;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -50,15 +53,24 @@ public class ProductoFrame extends javax.swing.JDialog {
 
     }
 
-    private void cargarProducto(Producto producto, ImageIcon icono) {
-        lblImagenArticulo.setIcon(icono);
+    private void cargarProducto(Producto producto, ImageIcon icono) {    
+            Image imgProd = icono.getImage();
+            int anchoEtiqueta =lblImagenArticulo.getWidth();
+            int altoEtiqueta = lblImagenArticulo.getHeight();
+            
+            Image imgRedimensionada = imgProd.getScaledInstance(anchoEtiqueta, altoEtiqueta, Image.SCALE_DEFAULT);
+            ImageIcon iconRedimensionado = new ImageIcon(imgRedimensionada);
+            
+            
+        
+        lblImagenArticulo.setIcon(iconRedimensionado);
         String clave = producto.getIdProducto();
         String nombre = producto.getNomProducto();
         String descripcion = producto.getDescProducto();
         double stockRequerido = producto.getStockProducto();
         String unidad = producto.getUnidadProducto();
         double precioCompra = producto.getPrecioCompraProducto();
-        double precioVenta = producto.getPrecioVentaProdcuto();
+        double precioVenta = producto.getPrecioVentaProducto();
 
         campoClave.setText(clave);
         campoNombre.setText(nombre);
@@ -308,9 +320,9 @@ public class ProductoFrame extends javax.swing.JDialog {
             imgArticleFile = chooser.getSelectedFile();
             ImageIcon icono = new ImageIcon(imgArticleFile.getAbsolutePath());
             Image imagen = icono.getImage();
-            imagen.getScaledInstance(anchoImagen, altoImagen, Image.SCALE_DEFAULT);
+            Image imagenRedimensionada = imagen.getScaledInstance(anchoImagen, altoImagen, Image.SCALE_DEFAULT);
 
-            ImageIcon iconoRedimensionado = new ImageIcon(imagen);
+            ImageIcon iconoRedimensionado = new ImageIcon(imagenRedimensionada);
             lblImagenArticulo.setIcon(iconoRedimensionado);
         }
 
@@ -318,9 +330,9 @@ public class ProductoFrame extends javax.swing.JDialog {
     }//GEN-LAST:event_lblImagenArticuloMousePressed
 
     private void btnGuardarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarProductoActionPerformed
-        String codigo = campoClave.getText();
-        String nombre = campoNombre.getText();
-        String descripcion = campoDesc.getText();
+        String codigo = campoClave.getText().toLowerCase();
+        String nombre = campoNombre.getText().toLowerCase();
+        String descripcion = campoDesc.getText().toLowerCase();
         double stock = Double.parseDouble(campoStock.getText());
         double precioCompra = Double.parseDouble(campoPrecioCompra.getText());
         double precioVenta = Double.parseDouble(campoPrecioVenta.getText());

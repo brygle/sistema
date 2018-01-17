@@ -16,7 +16,7 @@ public class Venta {
     private double montoVenta;
     private Date fechaVenta;
 
-    public Venta(int idVenta, double montoVenta, Date fechaVenta) {
+    public Venta(double montoVenta, Date fechaVenta) {
         this.idVenta = idVenta;
         this.montoVenta = montoVenta;
         this.fechaVenta = fechaVenta;

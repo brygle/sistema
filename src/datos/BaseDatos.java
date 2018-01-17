@@ -63,7 +63,7 @@ public class BaseDatos {
             //st.setBinaryStream(5,null,0);
             prepSt.setString(6, producto.getUnidadProducto());
             prepSt.setDouble(7, producto.getPrecioCompraProducto());
-            prepSt.setDouble(8, producto.getPrecioVentaProdcuto());
+            prepSt.setDouble(8, producto.getPrecioVentaProducto());
             prepSt.setDouble(9, producto.getExistenciasProducto());
             prepSt.setInt(10, producto.getIdCategoria());
             prepSt.setInt(11, producto.getIdProveedor());
@@ -166,7 +166,7 @@ public class BaseDatos {
                 prepSt.setBinaryStream(3, fis , tamanoFoto);
                 prepSt.setString(4, producto.getUnidadProducto());
                 prepSt.setDouble(5, producto.getPrecioCompraProducto());
-                prepSt.setDouble(6, producto.getPrecioVentaProdcuto());
+                prepSt.setDouble(6, producto.getPrecioVentaProducto());
                 prepSt.setDouble(7, producto.getExistenciasProducto());
                 prepSt.setInt(8, producto.getIdCategoria());
                 prepSt.setInt(9, producto.getIdProveedor());
@@ -183,7 +183,7 @@ public class BaseDatos {
                 prepSt.setDouble(3, producto.getStockProducto());
                 prepSt.setString(4, producto.getUnidadProducto());
                 prepSt.setDouble(5, producto.getPrecioCompraProducto());
-                prepSt.setDouble(6, producto.getPrecioVentaProdcuto());
+                prepSt.setDouble(6, producto.getPrecioVentaProducto());
                 prepSt.setInt(7, producto.getIdCategoria());
                 prepSt.setInt(8, producto.getIdProveedor());
                 prepSt.setString(9, producto.getIdProducto());
@@ -298,8 +298,13 @@ public class BaseDatos {
     
     }
     
-    public void insertarVenta(Venta venta){
+    public Long insertarVenta(Venta venta){
+        Long lastVal = 0l;
+        
         try {
+            
+            
+            
             conn = DriverManager.getConnection("jdbc:mysql://localhost/sistema_farmacia","root","");
             
             String sql = "INSERT INTO ventas (monto_venta, fecha_venta) values (?,?)";
@@ -311,30 +316,45 @@ public class BaseDatos {
             
             prepSt.executeUpdate();
             
+            prepSt.close();
+            
+            prepSt = this.conn.prepareStatement("SELECT last_insert_id()");
+            
+            rs = prepSt.executeQuery();
+            
+            while(rs.next()){
+                lastVal = rs.getLong("last_insert_id()");
+            }
+            
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
         finally{
             try {
+                rs.close();
                 prepSt.close();
                 conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+                
+            }
+            finally{
+                
             }
         }
-    
+        return lastVal;
     }
     
     public void insertarDetalleVenta(DetalleVenta detalle){
         try {
             conn = DriverManager.getConnection("jdbc:mysql://localhost/sistema_farmacia","root","");
             
-            String sql = "INSERT INTO detalle_venta (id_venta, id_producto, cantidad_vendida) values (?,?,?)";
+            String sql = "INSERT INTO detalle_venta (id_venta, id_prod, cantidad_vendida) values (?,?,?)";
             
             prepSt = conn.prepareStatement(sql);
             
-            prepSt.setInt(1, detalle.getIdVenta());
-            prepSt.setInt(2, detalle.getIdProd());
+            prepSt.setLong(1, detalle.getIdVenta());
+            prepSt.setString(2, detalle.getIdProd());
             prepSt.setDouble(3, detalle.getCantidadVendida());
             
             prepSt.executeUpdate();

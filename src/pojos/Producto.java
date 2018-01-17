@@ -19,7 +19,7 @@ public class Producto {
     private File fotoProducto;
     private String unidadProducto;
     private double precioCompraProducto;
-    private double precioVentaProdcuto;
+    private double precioVentaProducto;
     private double existenciasProducto;
     private int idCategoria;
     private int idProveedor;
@@ -32,7 +32,7 @@ public class Producto {
         this.fotoProducto = fotoProducto;
         this.unidadProducto = unidadProducto;
         this.precioCompraProducto = precioCompraProducto;
-        this.precioVentaProdcuto = precioVentaProdcuto;
+        this.precioVentaProducto = precioVentaProdcuto;
         this.existenciasProducto = existenciasProducto;
         this.idCategoria = idCategoria;
         this.idProveedor = idProveedor;
@@ -104,12 +104,12 @@ public class Producto {
         this.precioCompraProducto = precioCompraProducto;
     }
 
-    public double getPrecioVentaProdcuto() {
-        return precioVentaProdcuto;
+    public double getPrecioVentaProducto() {
+        return precioVentaProducto;
     }
 
-    public void setPrecioVentaProdcuto(double precioVentaProdcuto) {
-        this.precioVentaProdcuto = precioVentaProdcuto;
+    public void setPrecioVentaProducto(double precioVentaProducto) {
+        this.precioVentaProducto = precioVentaProducto;
     }
 
     public int getIdCategoria() {
